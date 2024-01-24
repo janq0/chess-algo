@@ -1,0 +1,1 @@
+/usr/bin/clang-14 -g -rdynamic "CMakeFiles/chess-algo.dir/src/main.o" "CMakeFiles/chess-algo.dir/src/bitboard.o" "CMakeFiles/chess-algo.dir/src/gui.o" "CMakeFiles/chess-algo.dir/src/chess.o" -o chess-algo  -Wl,-rpath,/usr/local/lib /usr/local/lib/libraylib.so -L/usr/local/lib -lraylib 

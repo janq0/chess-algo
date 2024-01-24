@@ -1,0 +1,3 @@
+/home/jan/Projects/chess-algo/build/CMakeFiles/chess-algo.dir
+/home/jan/Projects/chess-algo/build/CMakeFiles/edit_cache.dir
+/home/jan/Projects/chess-algo/build/CMakeFiles/rebuild_cache.dir

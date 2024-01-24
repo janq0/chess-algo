@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/jan/Projects/chess-algo/build",
+  "command": "/usr/bin/clang-14   -g -I/usr/local/include -o CMakeFiles/chess-algo.dir/src/main.o -c /home/jan/Projects/chess-algo/src/main.c",
+  "file": "/home/jan/Projects/chess-algo/src/main.c"
+},
+{
+  "directory": "/home/jan/Projects/chess-algo/build",
+  "command": "/usr/bin/clang-14   -g -I/usr/local/include -o CMakeFiles/chess-algo.dir/src/bitboard.o -c /home/jan/Projects/chess-algo/src/bitboard.c",
+  "file": "/home/jan/Projects/chess-algo/src/bitboard.c"
+},
+{
+  "directory": "/home/jan/Projects/chess-algo/build",
+  "command": "/usr/bin/clang-14   -g -I/usr/local/include -o CMakeFiles/chess-algo.dir/src/gui.o -c /home/jan/Projects/chess-algo/src/gui.c",
+  "file": "/home/jan/Projects/chess-algo/src/gui.c"
+},
+{
+  "directory": "/home/jan/Projects/chess-algo/build",
+  "command": "/usr/bin/clang-14   -g -I/usr/local/include -o CMakeFiles/chess-algo.dir/src/chess.o -c /home/jan/Projects/chess-algo/src/chess.c",
+  "file": "/home/jan/Projects/chess-algo/src/chess.c"
+}
+]

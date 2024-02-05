@@ -1,12 +1,16 @@
 #include <stdio.h>
+#include "bitboard.c"
 #include "bitboard.h"
-#include "chess.h"
+#include "chess.c"
 #include "defs.h"
 
 void
 test_bb(bitboard bb, bitboard expected) {
     if (bb != expected) {
+        printf("got ");
         print_bb(bb);
+        printf("but expected ");
+        print_bb(expected);
     } else {
         printf(".");
     }
@@ -73,10 +77,19 @@ main(void) {
     occ[0] = bb_set(occ[0], 21);
     occ[1] = bb_set(occ[1], 56);
     occ[1] = bb_set(occ[1], 44);
+    printf("--------------------\n");
+    print_bb(occ[0]); print_bb(occ[1]);
     test_bb(B_pleg_targets(occ, PC_W, 35), 0x402800284080ULL);
     test_bb(Q_pleg_targets(occ, PC_W, 35), 0x10105038EF385090ULL);
     test_bb(Q_pleg_targets(occ, PC_B, 35), 0x10905438EF305010ULL);
 
     struct game g = init_game();
-    test_bb(reachable_squares(&g), 0xFFFF0000ULL);
+    test_bb(reachable_squares(&g, PC_W), 0xFFFF0000ULL);
+
+    bitboard occ_[2] = {0ULL, 0ULL};
+    test_bb(B_targets_slow(28, 0ULL), B_pleg_targets(occ_, PC_W, 28));
+    test_bb(R_targets_slow(28, 0ULL), R_pleg_targets(occ_, PC_W, 28));
+
+    test_bb(B_pattern[28][B_magic_hash(28, 0ULL)], B_targets_slow(28, 0ULL));
+    test_bb(R_pattern[28][R_magic_hash(28, 0ULL)], R_targets_slow(28, 0ULL));
 }

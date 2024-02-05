@@ -1,13 +1,12 @@
 #include "search.h"
 #include <limits.h>
-#include <stdio.h>
 #include "bitboard.h"
 #include "chess.h"
 #include "defs.h"
 
 const int pc_weights[piecetype_cnt] = {
     [K] = 2000, [Q] = 90, [R] = 50, [B] = 30, [N] = 30, [P] = 10};
-const int mobility_weight = 1;
+const int mobility_weight = 5;
 
 int
 mob_score(struct game* g) {
@@ -53,7 +52,7 @@ negamax(struct game* g, int depth) {
     struct movelist ml = leg_moves(g);
     for (int i = 0; i < ml.count; i++) {
         sim = *g;
-        game_move(&sim, ml.moves[i]);
+        game_move_no_leg_check(&sim, ml.moves[i]);
         cur = -negamax(&sim, depth - 1);
         if (cur > max) {
             max = cur;
@@ -70,11 +69,10 @@ best_move(struct game* g) {
     int max = INT_MIN, cur;
     for (int i = 0; i < ml.count; i++) {
         sim = *g;
-        game_move(&sim, ml.moves[i]);
-        cur = -negamax(&sim, 2);
+        game_move_no_leg_check(&sim, ml.moves[i]);
+        cur = -negamax(&sim, 3);
         if (cur > max) {
             max = cur;
-            printf(".");
             bestmv = ml.moves[i];
         }
     }

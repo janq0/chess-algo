@@ -121,7 +121,7 @@ handle_mouse(void) {
         int from = floating_piece_index;
         int to = board_index_by_pos(GetMousePosition());
         struct move move = infered_game_move(&game, from, to);
-        if (game.turn == PC_W && move.from != move.to) {
+        if (game.turn == PC_W && move_is_leg(&game, move)) {
             ui_game_move(&game, move);
             struct move m = best_move(&game);
             ui_game_move(&game, m);

@@ -31,6 +31,22 @@ print_move(struct move m) {
     printf("%c%c from %d to %d (%c)", color, piece, m.from, m.to, type);
 }
 
+void
+print_ui_move(struct move m) {
+    char piece;
+    switch (m.piece) {
+        case P: piece = 'P'; break;
+        case N: piece = 'N'; break;
+        case R: piece = 'R'; break;
+        case B: piece = 'B'; break;
+        case Q: piece = 'Q'; break;
+        case K: piece = 'K'; break;
+        default: piece = '?';
+    };
+    printf("%c%c%c%c%c\n", piece, 'a' + (m.from % 8), '8' - (m.from / 8),
+           'a' + (m.to % 8), '8' - (m.to / 8));
+}
+
 bool
 cmp_move(struct move m1, struct move m2) {
     return m1.color == m2.color && m1.from == m2.from && m1.to == m2.to
@@ -156,24 +172,27 @@ sliding_ray(bitboard occ[2], enum piececolor pc, int row0, int col0, int drow,
 
 static bitboard
 R_pleg_targets(bitboard occ[2], enum piececolor pc, int sqr) {
-    bitboard result = 0ULL;
-    int row = sqr / 8, col = sqr % 8;
-    result |= sliding_ray(occ, pc, row, col, 1, 0);
-    result |= sliding_ray(occ, pc, row, col, 0, 1);
-    result |= sliding_ray(occ, pc, row, col, -1, 0);
-    result |= sliding_ray(occ, pc, row, col, 0, -1);
-    return result;
+    // bitboard result = 0ULL;
+    // int row = sqr / 8, col = sqr % 8;
+    // result |= sliding_ray(occ, pc, row, col, 1, 0);
+    // result |= sliding_ray(occ, pc, row, col, 0, 1);
+    // result |= sliding_ray(occ, pc, row, col, -1, 0);
+    // result |= sliding_ray(occ, pc, row, col, 0, -1);
+    // return result;
+    int hash = R_magic_hash(sqr, occ[PC_W] | occ[PC_B]);
+    return R_pattern[sqr][hash] & ~occ[pc];
 }
 
 static bitboard
 B_pleg_targets(bitboard occ[2], enum piececolor pc, int sqr) {
-    bitboard result = 0ULL;
-    int row = sqr / 8, col = sqr % 8;
-    result |= sliding_ray(occ, pc, row, col, 1, 1);
-    result |= sliding_ray(occ, pc, row, col, 1, -1);
-    result |= sliding_ray(occ, pc, row, col, -1, 1);
-    result |= sliding_ray(occ, pc, row, col, -1, -1);
-    return result;
+    // bitboard result = 0ULL;
+    // int row = sqr / 8, col = sqr % 8;
+    // result |= sliding_ray(occ, pc, row, col, 1, 1);
+    // result |= sliding_ray(occ, pc, row, col, 1, -1);
+    // result |= sliding_ray(occ, pc, row, col, -1, 1);
+    // result |= sliding_ray(occ, pc, row, col, -1, -1);
+    int hash = B_magic_hash(sqr, occ[PC_W] | occ[PC_B]);
+    return B_pattern[sqr][hash] & ~occ[pc];
 }
 
 static bitboard
@@ -340,80 +359,8 @@ reachable_squares(struct game* g, enum piececolor color) {
     return result;
 }
 
-// bool
-// pawn_move_is_pseudolegal(struct game* g, struct game_move m) {
-//     bitboard move = bb_set(0ULL, m.to);
-//     print_move(m);
-//     switch (m.type) {
-//         case MT_ATTACK:;
-//             bitboard move_mask = pawn_attack_bbs[m.color][m.from];
-//             bitboard enemy_pieces = g->occupied[!m.color];
-//             return (bool)(move & move_mask & enemy_pieces);
-//         case MT_QUIET:;
-//             bool same_col = (bool)(m.from % 8 == m.to % 8);
-//             bitboard targets = pawn_push_targets(
-//                 g->nonoccupied, g->pieces[m.color][PT_PAWN], m.color);
-//             return same_col && (move & targets);
-//         default: return false; // TODO: promo
-//     }
-// }
-
-// bool
-// knight_move_is_pseudolegal(struct game* g, struct game_move m) {
-//     bitboard move = bb_set(0ULL, m.to);
-//     bitboard moves = knight_pseudolegal_moves(g->occupied[m.color], m.from);
-//     return (bool)(move & moves);
-// }
-
-// bool
-// king_move_is_pseudolegal(struct game* g, struct game_move m) {
-//     bitboard move = bb_set(0ULL, m.to);
-//     bitboard moves = king_pseudolegal_moves(g->occupied[m.color], m.from);
-//     return (bool)(move & moves);
-// }
-
-// bool
-// rook_move_is_pseudolegal(struct game* g, struct game_move m) {
-//     bitboard move = bb_set(0ULL, m.to);
-//     bitboard moves = rook_pseudolegal_moves(g->occupied, m.color, m.from);
-//     return (bool)(move & moves);
-// }
-
-// bool
-// bishop_move_is_pseudolegal(struct game* g, struct game_move m) {
-//     bitboard move = bb_set(0ULL, m.to);
-//     bitboard moves = bishop_pseudolegal_moves(g->occupied, m.color, m.from);
-//     return (bool)(move & moves);
-// }
-
-// bool
-// queen_move_is_pseudolegal(struct game* g, struct game_move m) {
-//     bitboard move = bb_set(0ULL, m.to);
-//     bitboard moves = queen_pseudolegal_moves(g->occupied, m.color, m.from);
-//     return (bool)(move & moves);
-// }
-
-// static bool
-// game_move_is_pseudolegal(struct game* g, struct game_move m) {
-//     if (m.color != g->turn) {
-//         return false;
-//     }
-//     switch (m.piece) {
-//         case PT_INVALID: return false;
-//         case PT_PAWN: return pawn_move_is_pseudolegal(g, m);
-//         case PT_KNIGHT: return knight_move_is_pseudolegal(g, m);
-//         case PT_KING: return king_move_is_pseudolegal(g, m);
-//         case PT_ROOK: return rook_move_is_pseudolegal(g, m);
-//         case PT_BISHOP: return bishop_move_is_pseudolegal(g, m);
-//         case PT_QUEEN: return queen_move_is_pseudolegal(g, m);
-//         default: return false;
-//     }
-// }
-
 void
 print_game(struct game* g) {
-    printf("nonoccupied:");
-    print_bb(g->nonocc);
     printf("white:");
     print_bb(g->occ[PC_W]);
     printf("black:");
@@ -421,18 +368,7 @@ print_game(struct game* g) {
 }
 
 void
-game_move_update_bbs(struct game* g, struct move m) {
-    BB_MUT_MOVE(g->pcs[m.color][m.piece], m.from, m.to);
-    BB_MUT_MOVE(g->occ[m.color], m.from, m.to);
-    for (int pt = 0; pt < piecetype_cnt; pt++) {
-        BB_MUT_POP(g->pcs[!m.color][pt], m.to);
-        BB_MUT_POP(g->occ[!m.color], m.to);
-        if (bb_set(0ULL, m.to) == g->enp_targets[!m.color]) {
-            BB_MUT_POP(g->pcs[!m.color][pt],
-                       m.color == PC_W ? m.to + 8 : m.to - 8);
-        }
-    }
-
+game_move_update_castling_rights(struct game* g, struct move m) {
     if (m.piece == K) {
         if (m.color == PC_W) {
             g->castling_rights[0] = false;
@@ -456,7 +392,33 @@ game_move_update_bbs(struct game* g, struct move m) {
             g->castling_rights[0] = false;
         }
     }
+}
 
+void
+game_move_update_enp_targets(struct game* g, struct move m) {
+    g->enp_targets[m.color] = 0ULL;
+    if (m.piece == P && m.color == PC_W && m.from / 8 == 6 && m.to / 8 == 4) {
+        g->enp_targets[m.color] |= bb_set(0ULL, m.to + 8);
+    }
+    if (m.piece == P && m.color == PC_B && m.from / 8 == 1 && m.to / 8 == 3) {
+        g->enp_targets[m.color] |= bb_set(0ULL, m.to - 8);
+    }
+}
+
+void
+game_move_update_bbs(struct game* g, struct move m) {
+    BB_MUT_MOVE(g->pcs[m.color][m.piece], m.from, m.to);
+    BB_MUT_MOVE(g->occ[m.color], m.from, m.to);
+    // OPTIMIZATION IDEA: keep an int[64] array of what piece is at each
+    // index to avoid this loop.
+    for (int pt = 0; pt < piecetype_cnt; pt++) {
+        BB_MUT_POP(g->pcs[!m.color][pt], m.to);
+        BB_MUT_POP(g->occ[!m.color], m.to);
+        if (m.piece == P && bb_set(0ULL, m.to) == g->enp_targets[!m.color]) {
+            BB_MUT_POP(g->pcs[!m.color][pt],
+                       m.color == PC_W ? m.to + 8 : m.to - 8);
+        }
+    }
     if (m.type == MT_CASTLE) {
         if (m.to == 62) {
             BB_MUT_MOVE(g->pcs[m.color][R], 63, 61);
@@ -475,17 +437,11 @@ game_move_update_bbs(struct game* g, struct move m) {
             BB_MUT_MOVE(g->occ[m.color], 0, 3);
         }
     }
-
     g->nonocc = ~(g->occ[PC_B] | g->occ[PC_W]);
+}
 
-    g->enp_targets[m.color] = 0ULL;
-    if (m.piece == P && m.color == PC_W && m.from / 8 == 6 && m.to / 8 == 4) {
-        g->enp_targets[m.color] |= bb_set(0ULL, m.to + 8);
-    }
-    if (m.piece == P && m.color == PC_B && m.from / 8 == 1 && m.to / 8 == 3) {
-        g->enp_targets[m.color] |= bb_set(0ULL, m.to - 8);
-    }
-
+void
+game_move_handle_promotions(struct game* g, struct move m) {
     if (m.type == MT_PROMOTION) {
         enum piecetype piece;
         if (m.promotion == PT_INVALID) {
@@ -507,6 +463,14 @@ game_move_update_bbs(struct game* g, struct move m) {
     }
 }
 
+void
+game_move_update(struct game* g, struct move m) {
+    game_move_update_bbs(g, m);
+    game_move_update_castling_rights(g, m);
+    game_move_update_enp_targets(g, m);
+    game_move_handle_promotions(g, m);
+}
+
 bool
 player_in_check(struct game* g, enum piececolor pc) {
     bitboard king = g->pcs[pc][K];
@@ -517,7 +481,7 @@ player_in_check(struct game* g, enum piececolor pc) {
 bool
 pleg_move_is_leg(struct game* g, struct move m) {
     struct game sim = *g;
-    game_move_update_bbs(&sim, m);
+    game_move_update(&sim, m);
     // printf("(((\nsim:\n");
     // print_game(&sim);
     // printf("))) => %c\n", !game_is_check(&sim, g->turn) ? 'Y' : 'N');
@@ -536,28 +500,24 @@ leg_moves(struct game* g) {
     }
     if (g->castling_rights[0] && !(~g->nonocc & 0x0000000000000006ULL)
         && !(reachable_squares(g, !g->turn) & 0x000000000000000EULL)) {
-        printf("castle0\n");
         result.moves[result.count] =
             (struct move){60, 62, PC_W, K, PT_INVALID, MT_CASTLE};
         result.count++;
     }
     if (g->castling_rights[1] && !(~g->nonocc & 0x0000000000000070ULL)
         && !(reachable_squares(g, !g->turn) & 0x0000000000000038ULL)) {
-        printf("castle1\n");
         result.moves[result.count] =
             (struct move){60, 58, PC_W, K, PT_INVALID, MT_CASTLE};
         result.count++;
     }
     if (g->castling_rights[2] && !(~g->nonocc & 0x0600000000000000ULL)
         && !(reachable_squares(g, !g->turn) & 0x0E00000000000000ULL)) {
-        printf("castle2\n");
         result.moves[result.count] =
             (struct move){4, 6, PC_B, K, PT_INVALID, MT_CASTLE};
         result.count++;
     }
     if (g->castling_rights[3] && !(~g->nonocc & 0x7000000000000000ULL)
         && !(reachable_squares(g, !g->turn) & 0x3800000000000000ULL)) {
-        printf("castle3\n");
         result.moves[result.count] =
             (struct move){4, 2, PC_B, K, PT_INVALID, MT_CASTLE};
         result.count++;
@@ -587,7 +547,7 @@ game_is_checkmate(struct game* g) {
     struct movelist ml = pleg_moves(g);
     for (int i = 0; i < ml.count; i++) {
         struct game sim = *g;
-        game_move_update_bbs(&sim, ml.moves[i]);
+        game_move_update(&sim, ml.moves[i]);
         if (!player_in_check(&sim, g->turn)) {
             return false;
         }
@@ -596,14 +556,14 @@ game_is_checkmate(struct game* g) {
 }
 
 int
-game_move(struct game* g, struct move m) {
+game_move_no_leg_check(struct game* g, struct move m) {
     if (!g->active) {
         return -1;
     }
-    if (!move_is_leg(g, m)) {
-        return -1;
-    }
-    game_move_update_bbs(g, m);
+    // if (!move_is_leg(g, m)) {
+    //     return -1;
+    // }
+    game_move_update(g, m);
     g->turn = !g->turn;
     if (game_is_checkmate(g)) {
         g->active = false;
@@ -614,24 +574,26 @@ game_move(struct game* g, struct move m) {
 
 int
 ui_game_move(struct game* g, struct move m) {
-    print_move(m);
+    print_ui_move(m);
     if (!g->active) {
-        printf("Game isn't active");
+        printf("Game isn't active\n");
         return -1;
     }
     if (!move_is_leg(g, m)) {
-        printf("Ilegal move");
+        printf("Ilegal move\n");
         return -1;
     }
-    game_move_update_bbs(g, m);
+    game_move_update(g, m);
     g->turn = !g->turn;
     if (game_is_checkmate(g)) {
-        printf("Checkmate");
+        printf("Checkmate\n");
         g->active = false;
         return 0;
     }
     if (player_in_check(g, g->turn)) {
-        printf("Check ");
+        printf("Check\n");
     }
+    printf("%s", g->turn == PC_W ? "White" : "Black");
+    printf(" is playing...\n");
     return 0;
 }

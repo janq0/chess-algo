@@ -27,7 +27,7 @@ struct game init_game(void);
 struct move infered_game_move(struct game* game, int from, int to);
 
 /* Apply move m to game g. */
-int game_move(struct game* g, struct move m);
+int game_move_no_leg_check(struct game* g, struct move m);
 
 int ui_game_move(struct game* g, struct move m);
 
@@ -40,6 +40,7 @@ void print_move(struct move m);
 /* Generates all legal moves. */
 struct movelist leg_moves(struct game* g);
 struct movelist pleg_moves(struct game* g);
+bool move_is_leg(struct game* g, struct move m);
 bitboard reachable_squares(struct game* g, enum piececolor color);
 
 #endif // CHESS_H

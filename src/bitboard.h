@@ -21,7 +21,8 @@ extern const bitboard a8_bb, rank8_bb, rank7_bb, rank5_bb, rank4_bb, rank2_bb,
     rank1_bb, not_fileA_bb, not_fileH_bb;
 
 extern bitboard N_pattern[64], K_pattern[64], P_atk_pattern[piececolor_cnt][64],
-    P_push_pattern[piececolor_cnt], file_bbs[8];
+    P_push_pattern[piececolor_cnt], file_bbs[8], R_pattern[64][4096],
+    B_pattern[64][4096];
 
 extern bitboard piece_moves_bb[piececolor_cnt][piecetype_cnt][64];
 extern bitboard pawn_capture_move[];
@@ -52,5 +53,19 @@ int square_index(char coords[2]);
 int bb_ls1b(bitboard bb);
 
 void gen_bbs();
+
+int bb_count_1s(bitboard bb);
+
+int B_magic_hash(int sq, bitboard blockers);
+
+int R_magic_hash(int sq, bitboard blockers);
+
+bitboard B_magic_mask(int sq);
+
+bitboard R_magic_mask(int sq);
+
+bitboard B_targets_slow(int sq, bitboard block);
+
+bitboard R_targets_slow(int sq, bitboard block);
 
 #endif // BITBOARD_H

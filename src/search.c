@@ -4,16 +4,19 @@
 #include "chess.h"
 #include "defs.h"
 
+#define MIN(i, j) (((i) < (j)) ? (i) : (j))
+#define MAX(i, j) (((i) > (j)) ? (i) : (j))
+
 const int pc_weights[piecetype_cnt] = {
     [K] = 2000, [Q] = 90, [R] = 50, [B] = 30, [N] = 30, [P] = 10};
-const int mobility_weight = 5;
+const int mobility_weight = 1;
 
 int
 mob_score(struct game* g) {
     int result = 0;
-    result += pleg_moves(g).count;
-    g->turn = !g->turn;
     result -= pleg_moves(g).count;
+    g->turn = !g->turn;
+    result += pleg_moves(g).count;
     g->turn = !g->turn;
     return result;
 }
@@ -43,22 +46,23 @@ eval(struct game* g) {
 }
 
 int
-negamax(struct game* g, int depth) {
+negamax(struct game* g, int depth, int a, int b) {
     if (depth == 0 || !g->active) {
         return eval(g);
     }
-    int max = INT_MIN, cur;
+    int val = INT_MIN + 1;
     struct game sim;
     struct movelist ml = leg_moves(g);
     for (int i = 0; i < ml.count; i++) {
         sim = *g;
         game_move_no_leg_check(&sim, ml.moves[i]);
-        cur = -negamax(&sim, depth - 1);
-        if (cur > max) {
-            max = cur;
+        val = MAX(val, -negamax(&sim, depth - 1, -b, -a));
+        a = MAX(a, val);
+        if (b <= a) {
+            break;
         }
     }
-    return max;
+    return val;
 }
 
 struct move
@@ -66,11 +70,11 @@ best_move(struct game* g) {
     struct movelist ml = leg_moves(g);
     struct move bestmv;
     struct game sim;
-    int max = INT_MIN, cur;
+    int max = INT_MIN + 1, cur;
     for (int i = 0; i < ml.count; i++) {
         sim = *g;
         game_move_no_leg_check(&sim, ml.moves[i]);
-        cur = -negamax(&sim, 3);
+        cur = -negamax(&sim, 3, INT_MIN + 1, INT_MAX);
         if (cur > max) {
             max = cur;
             bestmv = ml.moves[i];

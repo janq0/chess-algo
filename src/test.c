@@ -77,8 +77,6 @@ main(void) {
     occ[0] = bb_set(occ[0], 21);
     occ[1] = bb_set(occ[1], 56);
     occ[1] = bb_set(occ[1], 44);
-    printf("--------------------\n");
-    print_bb(occ[0]); print_bb(occ[1]);
     test_bb(B_pleg_targets(occ, PC_W, 35), 0x402800284080ULL);
     test_bb(Q_pleg_targets(occ, PC_W, 35), 0x10105038EF385090ULL);
     test_bb(Q_pleg_targets(occ, PC_B, 35), 0x10905438EF305010ULL);

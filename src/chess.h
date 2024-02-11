@@ -9,6 +9,7 @@ struct game {
     bitboard pcs[piececolor_cnt]
                 [piecetype_cnt];  /* Squares with a given color and piece */
     bitboard occ[piececolor_cnt]; /* Squares occupied by a given color */
+    bitboard occs;
     bitboard nonocc;              /* Squares that aren't occupied */
     bitboard enp_targets[piececolor_cnt]; /* En passant target squares */
     bool castling_rights[4];              /* */

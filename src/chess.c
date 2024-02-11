@@ -77,7 +77,8 @@ init_game(void) {
             g.occ[c] |= g.pcs[c][t];
         }
     }
-    g.nonocc = ~(g.occ[PC_B] | g.occ[PC_W]);
+    g.occs = g.occ[PC_B] | g.occ[PC_W];
+    g.nonocc = ~g.occs;
     g.enp_targets[PC_W] = 0ULL;
     g.enp_targets[PC_B] = 0ULL;
     g.active = true;
@@ -437,7 +438,8 @@ game_move_update_bbs(struct game* g, struct move m) {
             BB_MUT_MOVE(g->occ[m.color], 0, 3);
         }
     }
-    g->nonocc = ~(g->occ[PC_B] | g->occ[PC_W]);
+    g->occs = g->occ[PC_B] | g->occ[PC_W];
+    g->nonocc = ~g->occs;
 }
 
 void
@@ -473,18 +475,34 @@ game_move_update(struct game* g, struct move m) {
 
 bool
 player_in_check(struct game* g, enum piececolor pc) {
-    bitboard king = g->pcs[pc][K];
-    bitboard reachable_by_enemy = reachable_squares(g, !pc);
-    return (bool)(king & reachable_by_enemy);
+    // bitboard king = g->pcs[pc][K];
+    // bitboard reachable_by_enemy = reachable_squares(g, !pc);
+    // return (bool)(king & reachable_by_enemy);
+    // if (g->pcs[pc][K] == 0ULL) print_game(g);
+    int Ki = bb_ls1b(g->pcs[pc][K]);
+    bool r = (bool)(B_pattern[Ki][B_magic_hash(Ki, g->occs)]
+                        & (g->pcs[!pc][B] | g->pcs[!pc][Q])
+                    || R_pattern[Ki][R_magic_hash(Ki, g->occs)]
+                           & (g->pcs[!pc][R] | g->pcs[!pc][Q])
+                    || N_pattern[Ki] & g->pcs[!pc][N]
+                    || P_atk_pattern[pc][Ki] & g->pcs[!pc][P]);
+    // if (r) {printf("CHECK: "); print_game(g);}
+    return r;
 }
 
 bool
 pleg_move_is_leg(struct game* g, struct move m) {
     struct game sim = *g;
+    if (bb_get(g->pcs[!m.color][K], m.to)) {
+        print_game(g);
+    }
     game_move_update(&sim, m);
     // printf("(((\nsim:\n");
     // print_game(&sim);
     // printf("))) => %c\n", !game_is_check(&sim, g->turn) ? 'Y' : 'N');
+    if (bb_get(g->pcs[!m.color][K], m.to) & player_in_check(g, g->turn)) {
+        printf("^^^^^^^^ in check\n\n");
+    }
     return !player_in_check(&sim, g->turn);
 }
 
@@ -498,25 +516,25 @@ leg_moves(struct game* g) {
             result.count++;
         }
     }
-    if (g->castling_rights[0] && !(~g->nonocc & 0x0000000000000006ULL)
+    if (g->castling_rights[0] && !(g->occs & 0x0000000000000006ULL)
         && !(reachable_squares(g, !g->turn) & 0x000000000000000EULL)) {
         result.moves[result.count] =
             (struct move){60, 62, PC_W, K, PT_INVALID, MT_CASTLE};
         result.count++;
     }
-    if (g->castling_rights[1] && !(~g->nonocc & 0x0000000000000070ULL)
+    if (g->castling_rights[1] && !(g->occs & 0x0000000000000070ULL)
         && !(reachable_squares(g, !g->turn) & 0x0000000000000038ULL)) {
         result.moves[result.count] =
             (struct move){60, 58, PC_W, K, PT_INVALID, MT_CASTLE};
         result.count++;
     }
-    if (g->castling_rights[2] && !(~g->nonocc & 0x0600000000000000ULL)
+    if (g->castling_rights[2] && !(g->occs & 0x0600000000000000ULL)
         && !(reachable_squares(g, !g->turn) & 0x0E00000000000000ULL)) {
         result.moves[result.count] =
             (struct move){4, 6, PC_B, K, PT_INVALID, MT_CASTLE};
         result.count++;
     }
-    if (g->castling_rights[3] && !(~g->nonocc & 0x7000000000000000ULL)
+    if (g->castling_rights[3] && !(g->occs & 0x7000000000000000ULL)
         && !(reachable_squares(g, !g->turn) & 0x3800000000000000ULL)) {
         result.moves[result.count] =
             (struct move){4, 2, PC_B, K, PT_INVALID, MT_CASTLE};

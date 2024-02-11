@@ -25,6 +25,11 @@ bitboard N_pattern[64] = {0ULL}, K_pattern[64] = {0ULL},
          P_push_pattern[piececolor_cnt] = {0ULL}, file_bbs[8] = {0ULL};
 
 struct {
+    unsigned int pcs[piececolor_cnt][piecetype_cnt][64], turn_is_B,
+        castling_rights[4], enp_targets[64];
+} zobrist_rands;
+
+struct {
     const int index[64]; /* Maps the subsequence it's index in the sequence */
     const bitboard seq;  /* An order 6 binary De Bruijn sequence */
 } bb_debruijn = {

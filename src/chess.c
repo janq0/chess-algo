@@ -418,6 +418,7 @@ game_move_update_bbs(struct game* g, struct move m) {
         if (m.piece == P && bb_set(0ULL, m.to) == g->enp_targets[!m.color]) {
             BB_MUT_POP(g->pcs[!m.color][pt],
                        m.color == PC_W ? m.to + 8 : m.to - 8);
+            BB_MUT_POP(g->occ[!m.color], m.color == PC_W ? m.to + 8 : m.to - 8);
         }
     }
     if (m.type == MT_CASTLE) {

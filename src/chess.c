@@ -1,5 +1,4 @@
 #include "chess.h"
-#include <alloca.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include "bitboard.h"

@@ -445,19 +445,10 @@ game_move_update_bbs(struct game* g, struct move m) {
 
 void
 game_move_handle_promotions(struct game* g, struct move m) {
-    if (m.type == MT_PROMOTION) {
+    if (m.piece == P && (m.to / 8 == 0 || m.to / 8 == 7)) {
         enum piecetype piece;
         if (m.promotion == PT_INVALID) {
-            char input;
-            printf("Speficy the promotion [n/b/r/q]: ");
-            scanf("%c", &input);
-            switch (input) {
-                case 'n': piece = N; break;
-                case 'b': piece = B; break;
-                case 'r': piece = R; break;
-                case 'q': piece = Q; break;
-                default: piece = Q;
-            }
+            piece = Q;
         } else {
             piece = m.promotion;
         }

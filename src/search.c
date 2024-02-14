@@ -24,7 +24,7 @@ mob_score(struct game* g) {
 int
 eval(struct game* g) {
     if (!g->active) {
-        return g->turn ? -9999 : 9999;
+        return g->turn ? 9999 : -9999;
     }
     int result = 0;
     bitboard rem;
@@ -43,6 +43,7 @@ eval(struct game* g) {
         result += cnt * pc_weights[i];
     }
     return (result + mob_score(g)) * (g->turn ? -1 : 1);
+    // TODO: add game_is_checkmate thingy
 }
 
 int

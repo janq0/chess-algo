@@ -36,10 +36,10 @@ print_ui_move(struct move m) {
     char piece;
     switch (m.piece) {
         case P: piece = 'P'; break;
-        case N: piece = 'N'; break;
-        case R: piece = 'R'; break;
-        case B: piece = 'B'; break;
-        case Q: piece = 'Q'; break;
+        case N: piece = 'J'; break;
+        case R: piece = 'V'; break;
+        case B: piece = 'S'; break;
+        case Q: piece = 'D'; break;
         case K: piece = 'K'; break;
         default: piece = '?';
     };
@@ -103,13 +103,13 @@ infered_game_move(struct game* g, int from, int to) {
             if (m.piece == P && (m.to / 8 == 0 || m.to / 8 == 7)) {
                 m.type = MT_PROMOTION;
                 char input;
-                printf("Speficy the promotion [n/b/r/q]: ");
+                printf("Proměnna [j/s/v/d]: ");
                 scanf("%c", &input);
                 switch (input) {
-                    case 'n': m.promotion = N; break;
-                    case 'b': m.promotion = B; break;
-                    case 'r': m.promotion = R; break;
-                    case 'q': m.promotion = Q; break;
+                    case 'j': m.promotion = N; break;
+                    case 's': m.promotion = B; break;
+                    case 'v': m.promotion = R; break;
+                    case 'd': m.promotion = Q; break;
                     default: m.promotion = Q;
                 }
             }
@@ -471,7 +471,7 @@ player_in_check(struct game* g, enum piececolor pc) {
     // bitboard reachable_by_enemy = reachable_squares(g, !pc);
     // return (bool)(king & reachable_by_enemy);
     // if (g->pcs[pc][K] == 0ULL) print_game(g);
-    int Ki = bb_ls1b(g->pcs[pc][K]);
+    int Ki = bb_ls1b(g->pcs[pc][K]); // TODO: this is probably throwing error
     bool r = (bool)(B_pattern[Ki][B_magic_hash(Ki, g->occs)]
                         & (g->pcs[!pc][B] | g->pcs[!pc][Q])
                     || R_pattern[Ki][R_magic_hash(Ki, g->occs)]
@@ -565,6 +565,8 @@ game_is_checkmate(struct game* g) {
     return true;
 }
 
+// TODO: Add game_is_stalemate
+
 int
 game_move_no_leg_check(struct game* g, struct move m) {
     if (!g->active) {
@@ -586,24 +588,24 @@ int
 ui_game_move(struct game* g, struct move m) {
     print_ui_move(m);
     if (!g->active) {
-        printf("Game isn't active\n");
+        printf("Hra není aktivní\n");
         return -1;
     }
     if (!move_is_leg(g, m)) {
-        printf("Ilegal move\n");
+        printf("Nelegální tah\n");
         return -1;
     }
     game_move_update(g, m);
     g->turn = !g->turn;
     if (game_is_checkmate(g)) {
-        printf("Checkmate\n");
+        printf("Šachmat\n");
         g->active = false;
         return 0;
     }
     if (player_in_check(g, g->turn)) {
-        printf("Check\n");
+        printf("Šach\n");
     }
-    printf("%s", g->turn == PC_W ? "White" : "Black");
-    printf(" is playing...\n");
+    printf("%s", g->turn == PC_W ? "Bílý" : "Černý");
+    printf(" hraje...\n");
     return 0;
 }

@@ -3,3 +3,4 @@ archive/
 .cache/
 a.out
 gmon.out
+src/*.h.gch

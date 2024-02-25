@@ -29,7 +29,6 @@ set_square_colors(Color light, Color dark) {
 
 static void
 load_textures(void) {
-    printf("%s", GetWorkingDirectory());
     piece_textures[PC_W][P] = LoadTexture("img/wp96.png");
     piece_textures[PC_B][P] = LoadTexture("img/bp96.png");
     piece_textures[PC_W][R] = LoadTexture("img/wr96.png");
@@ -136,6 +135,7 @@ handle_mouse(void) {
 
 void
 start_gui(void) {
+    SetTraceLogLevel(LOG_WARNING | LOG_ERROR | LOG_FATAL);
     game = init_game();
     set_square_size(96);
     InitWindow(window_size, window_size, "chess-algo");

@@ -1,7 +1,6 @@
 .vscode/
 archive/
 .cache/
-a.out
 gmon.out
 # Prerequisites
 *.d
@@ -34,8 +33,6 @@ gmon.out
 *.dylib
 
 # Executables
-*.exe
-*.out
 *.app
 *.i*86
 *.x86_64
